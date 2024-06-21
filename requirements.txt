@@ -5,3 +5,5 @@ aiohttp
 requests
 gunicorn
 Pillow
+langchain 
+langchain_google_genai 

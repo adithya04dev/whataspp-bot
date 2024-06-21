@@ -3,6 +3,8 @@
 # OpenAI Integration
 # response = generate_response(message_body, wa_id, name)
 # response = process_text_for_whatsapp(response)
+import time
+
 import logging
 from flask import current_app, jsonify
 import json
@@ -57,8 +59,16 @@ def process_video(video_path):
     model = GenerativeModel(model_name="gemini-1.5-pro")
     
     video_file = genai.upload_file(path=video_path)
+
+    while video_file.state.name == "PROCESSING":
+        print('.', end='')
+        time.sleep(10)
+        video_file = genai.get_file(video_file.name)
     
-    response = model.generate_content(["Describe what's happening in this video", video_file])
+    if video_file.state.name == "FAILED":
+      raise ValueError(video_file.state.name)
+    
+    response = model.generate_content([ video_file,"Describe what's happening in this video"])
     return response.text
 
 def log_http_response(response):

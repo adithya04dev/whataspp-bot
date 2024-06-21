@@ -15,7 +15,9 @@ import os
 import tempfile
 import shelve
 
-
+from google.generativeai.types import content_types
+_USER_ROLE = "user"
+_MODEL_ROLE = "model"
 
 
 def  ask( content: content_types.ContentType,history):

@@ -152,6 +152,7 @@ def process_whatsapp_message(body):
         data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
+        print(prompt)
         image_id = message["image"]["id"]
         image_path = download_image(image_id)
         if image_path:
@@ -166,6 +167,7 @@ def process_whatsapp_message(body):
     elif "video" in message:
         video_id = message["video"]["id"]
         prompt=message['video'].get('caption', "Extract text from video")
+        print(prompt)
         video_path = download_video(video_id)
         if video_path:
             try:

@@ -86,7 +86,7 @@ def process_whatsapp_message(body):
         image_id = message["image"]["id"]
         image_url = download_image(image_id)
         if image_url:
-            response = "I received your image. Here's what I think about it: [Your image analysis here]"
+            response = f"I received your image. Here's what I think about it: [Your image analysis here]   url:{image_url}"
             data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
             # Optionally, you can send the image back or a processed version
             # data = get_image_message_input(current_app.config["RECIPIENT_WAID"], image_url)

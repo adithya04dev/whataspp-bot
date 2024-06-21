@@ -178,7 +178,7 @@ def process_whatsapp_message(body):
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
 
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    
+    print(message)
     if "text" in message:
         message_body = message["text"]["body"]
         response = generate_response(message_body)

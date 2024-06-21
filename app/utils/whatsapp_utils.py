@@ -18,7 +18,8 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
-
+import google.generativeai as genai
+import PIL.Image
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
     logging.info(f"Content-type: {response.headers.get('content-type')}")
@@ -101,17 +102,24 @@ def download_image(image_id):
     return None
 
 def extract_text_from_image(image):
-    print(current_app.config['GOOGLE_API_KEY'])
-    llm = GoogleGenerativeAI(model='gemini-1.5-flash', google_api_key=current_app.config['GOOGLE_API_KEY'])
+    # llm = GoogleGenerativeAI(model='gemini-1.5-flash', google_api_key=current_app.config['GOOGLE_API_KEY'])
     
-    prompt = PromptTemplate(
-        input_variables=["image"],
-        template="Extract and list all the text visible in this image. If there's no text, say 'No text found in the image'."
-    )
+    # prompt = PromptTemplate(
+    #     input_variables=["image"],
+    #     template="Extract and list all the text visible in this image. If there's no text, say 'No text found in the image'."
+    # )
     
-    chain = LLMChain(llm=llm, prompt=prompt)
+    # chain = LLMChain(llm=llm, prompt=prompt)
     
-    response = chain.run(image=image)
+    # response = chain.run(image=image)
+
+
+    
+    genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
+    # img = PIL.Image.open('path/to/image.png')
+    
+    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+    response = model.generate_content(["What is in this photo?", image])
     return response
 
 def process_whatsapp_message(body):

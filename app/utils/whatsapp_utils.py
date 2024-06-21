@@ -20,6 +20,48 @@ import requests
 import re
 import google.generativeai as genai
 import PIL.Image
+import os
+import tempfile
+import requests
+from google.generativeai import GenerativeModel
+
+def download_video(video_id):
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{video_id}"
+    headers = {
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        video_url = response.json().get('url')
+        if video_url:
+            video_response = requests.get(video_url, headers={
+                'Authorization':  f"Bearer {current_app.config['ACCESS_TOKEN']}"
+            }, stream=True)
+
+            if video_response.status_code == 200:
+                # Create a temporary file
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
+                    for chunk in video_response.iter_content(chunk_size=8192):
+                        tmp_file.write(chunk)
+                    return tmp_file.name
+            else:
+                logging.error(f"Failed to download video from URL: {video_response.text}")
+        else:
+            logging.error("No video URL found in the response")
+    else:
+        logging.error(f"Failed to get video info: {response.text}")
+    return None
+
+def process_video(video_path):
+    genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
+    model = GenerativeModel(model_name="gemini-1.5-pro")
+    
+    with open(video_path, 'rb') as f:
+        video_file = genai.upload_file(file=f)
+    
+    response = model.generate_content(["Describe what's happening in this video", video_file])
+    return response.text
+
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
     logging.info(f"Content-type: {response.headers.get('content-type')}")
@@ -118,7 +160,7 @@ def extract_text_from_image(image):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
     # img = PIL.Image.open('path/to/image.png')
     
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
     response = model.generate_content(["What is in this photo?", image])
     return response.text
 
@@ -142,6 +184,19 @@ def process_whatsapp_message(body):
         else:
             response = "Sorry, I couldn't process your image."
             data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
+    elif "video" in message:
+        video_id = message["video"]["id"]
+        video_path = download_video(video_id)
+        if video_path:
+            try:
+                extracted_text = process_video(video_path)
+                response = f"I received your video. Here's what I saw: {extracted_text}"
+            finally:
+                # Clean up the temporary file
+                os.unlink(video_path)
+        else:
+            response = "Sorry, I couldn't process your video."
+        data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
     else:
         logging.warning(f"Unsupported message type received: {message}")
         return

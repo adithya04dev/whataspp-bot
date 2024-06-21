@@ -13,6 +13,20 @@ import google.generativeai as genai
 import PIL.Image
 import os
 import tempfile
+import shelve
+
+
+genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
+model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+
+def  ask( content: content_types.ContentType,history):
+    content = content_types.to_content(content)
+    if not content.role:
+        content.role = _USER_ROLE
+    history.append(content)
+    response=model.generate_content(contents=history)  
+    history.append(response.candidates[0].content)
+    return response.text,history
 
 def download_video(video_id):
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{video_id}"
@@ -40,9 +54,8 @@ def download_video(video_id):
         logging.error(f"Failed to get video info: {response.text}")
     return None
 
-def process_video(video_path,prompt):
-    genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+def process_video(video_path,prompt,history):
+
     
     video_file = genai.upload_file(path=video_path)
 
@@ -54,8 +67,9 @@ def process_video(video_path,prompt):
     if video_file.state.name == "FAILED":
         raise ValueError(video_file.state.name)
     print("in video"+prompt)
-    response = model.generate_content([video_file,prompt])
-    return response.text
+    return ask([video_file,prompt],history)
+    # response = model.generate_content([video_file,prompt])
+    # return response.text
 
 def download_image(image_id):
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{image_id}"
@@ -83,16 +97,10 @@ def download_image(image_id):
         logging.error(f"Failed to get image info: {response.text}")
     return None
 
-def process_image(image_path,prompt):
-    genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+def process_image(image_path,prompt,history):
     
     image_file = genai.upload_file(path=image_path)
-
-
-    
-    response = model.generate_content([image_file, prompt])
-    return response.text
+    return ask([image_file, prompt],history)
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -108,11 +116,11 @@ def get_text_message_input(recipient, text):
         "text": {"preview_url": False, "body": text},
     })
 
-def generate_response(prompt):
-    genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
-    response = model.generate_content([prompt])
-    return response.text
+# def generate_response(prompt,history):
+
+    # response = model.generate_content([prompt])
+    # return response.text
+    # return ask([prompt])
 
 def send_message(data):
     headers = {
@@ -149,9 +157,12 @@ def process_whatsapp_message(body):
     print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     print(message)
+    with shelve.open("threads_db") as threads_shelf:
+        history=threads_shelf.get(wa_id, [])
+
     if "text" in message:
         message_body = message["text"]["body"]
-        response = generate_response(message_body)
+        response,history = ask([message_body],history)
         data = get_text_message_input(wa_id, response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
@@ -160,7 +171,7 @@ def process_whatsapp_message(body):
         image_path = download_image(image_id)
         if image_path:
             try:
-                extracted_text = process_image(image_path,prompt)
+                extracted_text,history = process_image(image_path,prompt)
                 response = f"I received your image. Here's what I saw: {extracted_text}"
             finally:
                 os.unlink(image_path)
@@ -174,7 +185,7 @@ def process_whatsapp_message(body):
         video_path = download_video(video_id)
         if video_path:
             try:
-                extracted_text = process_video(video_path,prompt)
+                extracted_text,history = process_video(video_path,prompt)
                 response = f"I received your video. Here's what I saw: {extracted_text}"
             finally:
                 os.unlink(video_path)
@@ -184,6 +195,8 @@ def process_whatsapp_message(body):
     else:
         logging.warning(f"Unsupported message type received: {message}")
         return
+    with shelve.open("threads_db", writeback=True) as threads_shelf:
+        threads_shelf[wa_id] = history
 
     send_message(data)
 
@@ -199,4 +212,3 @@ def is_valid_whatsapp_message(body):
         )
     except (KeyError, IndexError):
         return False
-

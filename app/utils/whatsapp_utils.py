@@ -53,7 +53,7 @@ def process_video(video_path,prompt):
     
     if video_file.state.name == "FAILED":
         raise ValueError(video_file.state.name)
-    
+    print("in video"+prompt)
     response = model.generate_content([video_file,prompt])
     return response.text
 

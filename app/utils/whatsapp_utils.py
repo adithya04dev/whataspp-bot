@@ -77,13 +77,17 @@ def download_image(image_id):
     if response.status_code == 200:
         image_url = response.json().get('url')
         if image_url:
-            return image_url
+            # return image_url
             # Download the actual image
-            # image_response = requests.get(image_url)
-            # if image_response.status_code == 200:
-            #     return Image.open(BytesIO(image_response.content))
-            # else:
-            #     logging.error(f"Failed to download image from URL: {image_response.text}")
+            image_response = requests.get(image_url, headers={
+                'Authorization':  f"Bearer {current_app.config['ACCESS_TOKEN']}"
+            }, stream=True)
+
+            if image_response.status_code == 200:
+                # return Image.open(BytesIO(image_response.content))
+                return "downloaded"
+            else:
+                logging.error(f"Failed to download image from URL: {image_response.text}")
         else:
             logging.error("No image URL found in the response")
     else:
@@ -104,7 +108,7 @@ def process_whatsapp_message(body):
         image_id = message["image"]["id"]
         image_url = download_image(image_id)
         if image_url:
-            response = "I received your image. Here's what I think about it: [Your image analysis here]"+image_url
+            response = "I received your image. Here's what I think about it: [Your image analysis here]"
             data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
             # Optionally, you can send the image back or a processed version
             # data = get_image_message_input(current_app.config["RECIPIENT_WAID"], image_url)

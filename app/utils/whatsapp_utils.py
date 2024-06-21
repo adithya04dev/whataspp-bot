@@ -120,7 +120,7 @@ def extract_text_from_image(image):
     
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
     response = model.generate_content(["What is in this photo?", image])
-    return response
+    return response.text
 
 def process_whatsapp_message(body):
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]

@@ -1,3 +1,8 @@
+
+# from app.services.openai_service import generate_response
+# OpenAI Integration
+# response = generate_response(message_body, wa_id, name)
+# response = process_text_for_whatsapp(response)
 import logging
 from flask import current_app, jsonify
 import json
@@ -59,6 +64,9 @@ def process_text_for_whatsapp(text):
     replacement = r"*\1*"
     whatsapp_style_text = re.sub(pattern, replacement, text)
     return whatsapp_style_text
+import requests
+from io import BytesIO
+from PIL import Image
 
 def download_image(image_id):
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{image_id}"
@@ -67,10 +75,19 @@ def download_image(image_id):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return response.json().get('url')
+        image_url = response.json().get('url')
+        if image_url:
+            # Download the actual image
+            image_response = requests.get(image_url)
+            if image_response.status_code == 200:
+                return Image.open(BytesIO(image_response.content))
+            else:
+                logging.error(f"Failed to download image from URL: {image_response.text}")
+        else:
+            logging.error("No image URL found in the response")
     else:
-        logging.error(f"Failed to download image: {response.text}")
-        return None
+        logging.error(f"Failed to get image info: {response.text}")
+    return None
 
 def process_whatsapp_message(body):
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
@@ -86,7 +103,7 @@ def process_whatsapp_message(body):
         image_id = message["image"]["id"]
         image_url = download_image(image_id)
         if image_url:
-            response = f"I received your image. Here's what I think about it: [Your image analysis here]   url:{image_url}"
+            response = "I received your image. Here's what I think about it: [Your image analysis here]"
             data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
             # Optionally, you can send the image back or a processed version
             # data = get_image_message_input(current_app.config["RECIPIENT_WAID"], image_url)

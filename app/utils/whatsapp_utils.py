@@ -8,6 +8,16 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
+from io import BytesIO
+from PIL import Image
+from langchain_google_genai import GoogleGenerativeAI
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+import logging
+from flask import current_app, jsonify
+import json
+import requests
+import re
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -67,7 +77,6 @@ def process_text_for_whatsapp(text):
 import requests
 from io import BytesIO
 from PIL import Image
-
 def download_image(image_id):
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{image_id}"
     headers = {
@@ -77,15 +86,12 @@ def download_image(image_id):
     if response.status_code == 200:
         image_url = response.json().get('url')
         if image_url:
-            # return image_url
-            # Download the actual image
             image_response = requests.get(image_url, headers={
                 'Authorization':  f"Bearer {current_app.config['ACCESS_TOKEN']}"
             }, stream=True)
 
             if image_response.status_code == 200:
-                # return Image.open(BytesIO(image_response.content))
-                return "downloaded"
+                return Image.open(BytesIO(image_response.content))
             else:
                 logging.error(f"Failed to download image from URL: {image_response.text}")
         else:
@@ -93,6 +99,19 @@ def download_image(image_id):
     else:
         logging.error(f"Failed to get image info: {response.text}")
     return None
+
+def extract_text_from_image(image):
+    llm = GoogleGenerativeAI(model='gemini-flash-1.5', google_api_key=current_app.config['GOOGLE_API_KEY'])
+    
+    prompt = PromptTemplate(
+        input_variables=["image"],
+        template="Extract and list all the text visible in this image. If there's no text, say 'No text found in the image'."
+    )
+    
+    chain = LLMChain(llm=llm, prompt=prompt)
+    
+    response = chain.run(image=image)
+    return response
 
 def process_whatsapp_message(body):
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
@@ -106,12 +125,11 @@ def process_whatsapp_message(body):
         data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
     elif "image" in message:
         image_id = message["image"]["id"]
-        image_url = download_image(image_id)
-        if image_url:
-            response = "I received your image. Here's what I think about it: [Your image analysis here]"
+        image = download_image(image_id)
+        if image:
+            extracted_text = extract_text_from_image(image)
+            response = f"I received your image. Here's the text I extracted: {extracted_text}"
             data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
-            # Optionally, you can send the image back or a processed version
-            # data = get_image_message_input(current_app.config["RECIPIENT_WAID"], image_url)
         else:
             response = "Sorry, I couldn't process your image."
             data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
@@ -120,7 +138,6 @@ def process_whatsapp_message(body):
         return
 
     send_message(data)
-
 def is_valid_whatsapp_message(body):
     try:
         return (
@@ -133,3 +150,12 @@ def is_valid_whatsapp_message(body):
         )
     except (KeyError, IndexError):
         return False
+    
+
+
+
+# ... (keep the existing imports and functions)
+
+
+
+# ... (keep the rest of the code)

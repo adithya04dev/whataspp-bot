@@ -108,8 +108,11 @@ def get_text_message_input(recipient, text):
         "text": {"preview_url": False, "body": text},
     })
 
-def generate_response(response):
-    return response.upper()
+def generate_response(prompt):
+    genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
+    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+    response = model.generate_content([prompt])
+    return response.text
 
 def send_message(data):
     headers = {

@@ -56,8 +56,7 @@ def process_video(video_path):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
     model = GenerativeModel(model_name="gemini-1.5-pro")
     
-    with open(video_path, 'rb') as f:
-        video_file = genai.upload_file(file=f)
+    video_file = genai.upload_file(path=video_path)
     
     response = model.generate_content(["Describe what's happening in this video", video_file])
     return response.text

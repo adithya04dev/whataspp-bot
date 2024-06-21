@@ -152,7 +152,7 @@ def process_whatsapp_message(body):
     if "text" in message:
         message_body = message["text"]["body"]
         response = generate_response(message_body)
-        data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
+        data = get_text_message_input(wa_id, response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
         print(prompt)
@@ -166,7 +166,7 @@ def process_whatsapp_message(body):
                 os.unlink(image_path)
         else:
             response = "Sorry, I couldn't process your image."
-        data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
+        data = get_text_message_input(wa_id, response)
     elif "video" in message:
         video_id = message["video"]["id"]
         prompt=message['video'].get('caption', "Extract text from video")
@@ -180,7 +180,7 @@ def process_whatsapp_message(body):
                 os.unlink(video_path)
         else:
             response = "Sorry, I couldn't process your video."
-        data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
+        data = get_text_message_input(wa_id, response)
     else:
         logging.warning(f"Unsupported message type received: {message}")
         return

@@ -101,6 +101,7 @@ def download_image(image_id):
     return None
 
 def extract_text_from_image(image):
+    print(current_app.config['GOOGLE_API_KEY'])
     llm = GoogleGenerativeAI(model='gemini-flash-1.5', google_api_key=current_app.config['GOOGLE_API_KEY'])
     
     prompt = PromptTemplate(

@@ -29,6 +29,7 @@ def  ask( content: content_types.ContentType,history):
     history.append(content)
     response=model.generate_content(contents=history)  
     history.append(response.candidates[0].content)
+    print(history)
     return response.text,history
 
 def download_video(video_id):

@@ -158,9 +158,9 @@ def process_text_for_whatsapp(text):
 def process_whatsapp_message(body):
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
-    print(body["entry"][0]["changes"][0]["value"]["messages"])
+    # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    print(message)
+    # print(message)
     with shelve.open("threads_db") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
 
@@ -170,7 +170,7 @@ def process_whatsapp_message(body):
         data = get_text_message_input(wa_id, response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
-        print(prompt)
+        # print(prompt)
         image_id = message["image"]["id"]
         image_path = download_image(image_id)
         if image_path:
@@ -185,7 +185,7 @@ def process_whatsapp_message(body):
     elif "video" in message:
         video_id = message["video"]["id"]
         prompt=message['video'].get('caption', "Extract text from video")
-        print(prompt)
+        # print(prompt)
         video_path = download_video(video_id)
         if video_path:
             try:

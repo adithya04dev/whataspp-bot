@@ -172,7 +172,7 @@ def process_whatsapp_message(body):
 
     if "text" in message:
         message_body = message["text"]["body"]
-        if(message_body=="cleanup"):
+        if(message_body.lower()=="cleanup"):
             history=[]
             response="done"
         else:           

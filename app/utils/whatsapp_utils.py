@@ -171,7 +171,11 @@ def process_whatsapp_message(body):
 
     if "text" in message:
         message_body = message["text"]["body"]
-        response,history = ask([message_body],history)
+        if(message_body=="cleanup":
+            history=[]
+            response="done"
+        else:           
+            response,history = ask([message_body],history)
         data = get_text_message_input(wa_id, response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")

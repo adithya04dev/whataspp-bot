@@ -175,7 +175,7 @@ def process_whatsapp_message(body):
         image_path = download_image(image_id)
         if image_path:
             try:
-                extracted_text,history = process_image(image_path,prompt)
+                extracted_text,history = process_image(image_path,prompt,history)
                 response = f"I received your image. Here's what I saw: {extracted_text}"
             finally:
                 os.unlink(image_path)
@@ -189,7 +189,7 @@ def process_whatsapp_message(body):
         video_path = download_video(video_id)
         if video_path:
             try:
-                extracted_text,history = process_video(video_path,prompt)
+                extracted_text,history = process_video(video_path,prompt,history)
                 response = f"I received your video. Here's what I saw: {extracted_text}"
             finally:
                 os.unlink(video_path)

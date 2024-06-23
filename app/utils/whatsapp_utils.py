@@ -208,7 +208,7 @@ def process_whatsapp_message(body):
     else:
         response = f"Unsupported message type received: {message}\n Can only support text,image,video..not docs.."
         logging.warning(f"Unsupported message type received: {message}")
-    with shelve.open("threads_db", writeback=True) as threads_shelf:
+    with shelve.open("threads_db1", writeback=True) as threads_shelf:
         threads_shelf[wa_id] = history
 
     send_message(data)

@@ -180,7 +180,6 @@ def process_whatsapp_message(body):
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
         print(message)
-        time.sleep(30)
         # print(prompt)
         image_id = message["image"]["id"]
         image_path = download_image(image_id)

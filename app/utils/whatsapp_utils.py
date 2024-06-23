@@ -166,7 +166,7 @@ def process_whatsapp_message(body):
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     # print(message)
-    with shelve.open("threads_db") as threads_shelf:
+    with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
 
     if "text" in message:

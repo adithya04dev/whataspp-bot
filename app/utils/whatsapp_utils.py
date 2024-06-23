@@ -162,7 +162,6 @@ def process_text_for_whatsapp(text):
 
 def process_whatsapp_message(body):
     print(f"total message body{body}")
-    time.sleep(15)
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     # print(body["entry"][0]["changes"][0]["value"]["messages"])

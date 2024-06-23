@@ -30,7 +30,11 @@ def  ask( content: content_types.ContentType,history):
     response=model.generate_content(contents=history)  
     history.append(response.candidates[0].content)
     print(history)
-    return response.text,history
+    try:
+        text=response.text
+    except:
+        text="try sending once again"
+    return text,history
 
 def download_video(video_id):
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{video_id}"

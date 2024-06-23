@@ -15,7 +15,7 @@ import PIL.Image
 import os
 import tempfile
 import shelve
-
+import time
 from google.generativeai.types import content_types
 _USER_ROLE = "user"
 _MODEL_ROLE = "model"
@@ -179,6 +179,8 @@ def process_whatsapp_message(body):
         data = get_text_message_input(wa_id, response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
+        print(message)
+        time.sleep(600)
         # print(prompt)
         image_id = message["image"]["id"]
         image_path = download_image(image_id)

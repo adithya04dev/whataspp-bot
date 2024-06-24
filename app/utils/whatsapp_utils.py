@@ -33,8 +33,9 @@ def  ask( content: content_types.ContentType,history):
         text=response.text
         history.append(response.candidates[0].content)
 
-    except:
-        text="try sending once again"
+    except Exception as e:
+        # text="try sending once again"
+        text=str(e)
         history=history[:-1]
     return text,history
 

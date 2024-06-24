@@ -30,8 +30,8 @@ def  ask( content: content_types.ContentType,history):
     response=model.generate_content(contents=history)  
     # print(history)
     try:
-        text=str(response)
-        text+=response.text
+        # text=str(response)
+        text=response.text
         history.append(response.candidates[0].content)
 
     except Exception as e:
@@ -180,6 +180,8 @@ def process_whatsapp_message(body):
         if(message_body.lower()=="cleanup"):
             history=[]
             response="done"
+        elif message_body.lower()=="history":
+            response=str(history)
         else:           
             response,history = ask([message_body],history)
     elif "image" in message:
@@ -210,7 +212,7 @@ def process_whatsapp_message(body):
         logging.warning(f"Unsupported message type received: {message}")
     with shelve.open("threads_db1", writeback=True) as threads_shelf:
         threads_shelf[wa_id] = history
-    response+=str(history)
+    # response+=str(history)
     data = get_text_message_input(wa_id, response)
 
     send_message(data)

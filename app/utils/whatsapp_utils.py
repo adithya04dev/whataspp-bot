@@ -189,8 +189,7 @@ def process_whatsapp_message(body):
             try:
                 extracted_text,history = process_image(image_path,prompt,history)
                 response = f"I received your image. Here's what I saw: {extracted_text}"
-            finally:
-                os.unlink(image_path)
+
         else:
             response = "Sorry, I couldn't process your image."
         data = get_text_message_input(wa_id, response)
@@ -203,8 +202,7 @@ def process_whatsapp_message(body):
             try:
                 extracted_text,history = process_video(video_path,prompt,history)
                 response = f"I received your video. Here's what I saw: {extracted_text}"
-            finally:
-                os.unlink(video_path)
+
         else:
             response = "Sorry, I couldn't process your video."
         data = get_text_message_input(wa_id, response)

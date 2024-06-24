@@ -203,7 +203,7 @@ def process_whatsapp_message(body):
             response =extracted_text 
         else:
             response = "Sorry, I couldn't process your video."
-        else:
+    else:
         response = f"Unsupported message type received: {message}\n Can only support text,image,video..not docs.."
         logging.warning(f"Unsupported message type received: {message}")
     with shelve.open("threads_db1", writeback=True) as threads_shelf:

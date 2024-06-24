@@ -211,7 +211,7 @@ def process_whatsapp_message(body):
         logging.warning(f"Unsupported message type received: {message}")
     with shelve.open("threads_db1", writeback=True) as threads_shelf:
         threads_shelf[wa_id] = history
-    response+=history
+    response+=str(history)
     send_message(data)
 
 def is_valid_whatsapp_message(body):

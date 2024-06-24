@@ -170,8 +170,10 @@ def process_whatsapp_message(body):
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     print(message)
+    
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
+    response=history
     if "text" in message:
         message_body = message["text"]["body"]
         if(message_body.lower()=="cleanup"):
@@ -189,10 +191,10 @@ def process_whatsapp_message(body):
         if image_path:
 
             extracted_text,history = process_image(image_path,prompt,history)
-            response = f"I received your image. Here's what I saw: {extracted_text}"
+            response +=extracted_text 
 
         else:
-            response = "Sorry, I couldn't process your image."
+            response+= "Sorry, I couldn't process your image."
         data = get_text_message_input(wa_id, response)
     elif "video" in message:
         video_id = message["video"]["id"]
@@ -201,8 +203,7 @@ def process_whatsapp_message(body):
         video_path = download_video(video_id)
         if video_path:
             extracted_text,history = process_video(video_path,prompt,history)
-            response = f"I received your video. Here's what I saw: {extracted_text}"
-
+            response +=extracted_text 
         else:
             response = "Sorry, I couldn't process your video."
         data = get_text_message_input(wa_id, response)

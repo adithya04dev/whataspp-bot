@@ -35,7 +35,8 @@ def  ask( content: content_types.ContentType,history):
 
     except Exception as e:
         # text="try sending once again"
-        text=str(e)
+        text=response
+        text+=str(e)
         history=history[:-1]
     return text,history
 

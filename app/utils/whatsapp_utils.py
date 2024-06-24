@@ -193,7 +193,7 @@ def process_whatsapp_message(body):
             response =extracted_text 
 
         else:
-            response+= "Sorry, I couldn't process your image."
+            response= "Sorry, I couldn't process your image."
         data = get_text_message_input(wa_id, response)
     elif "video" in message:
         video_id = message["video"]["id"]

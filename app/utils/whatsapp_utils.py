@@ -186,9 +186,9 @@ def process_whatsapp_message(body):
         image_id = message["image"]["id"]
         image_path = download_image(image_id)
         if image_path:
-            try:
-                extracted_text,history = process_image(image_path,prompt,history)
-                response = f"I received your image. Here's what I saw: {extracted_text}"
+
+            extracted_text,history = process_image(image_path,prompt,history)
+            response = f"I received your image. Here's what I saw: {extracted_text}"
 
         else:
             response = "Sorry, I couldn't process your image."
@@ -199,9 +199,8 @@ def process_whatsapp_message(body):
         # print(prompt)
         video_path = download_video(video_id)
         if video_path:
-            try:
-                extracted_text,history = process_video(video_path,prompt,history)
-                response = f"I received your video. Here's what I saw: {extracted_text}"
+            extracted_text,history = process_video(video_path,prompt,history)
+            response = f"I received your video. Here's what I saw: {extracted_text}"
 
         else:
             response = "Sorry, I couldn't process your video."

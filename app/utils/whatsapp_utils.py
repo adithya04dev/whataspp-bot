@@ -180,7 +180,6 @@ def process_whatsapp_message(body):
             response="done"
         else:           
             response,history = ask([message_body],history)
-        data = get_text_message_input(wa_id, response)
     elif "image" in message:
         prompt = message['image'].get('caption', "Extract text from image")
         # print(message)
@@ -191,10 +190,9 @@ def process_whatsapp_message(body):
 
             extracted_text,history = process_image(image_path,prompt,history)
             response =extracted_text 
-
+    
         else:
             response= "Sorry, I couldn't process your image."
-        data = get_text_message_input(wa_id, response)
     elif "video" in message:
         video_id = message["video"]["id"]
         prompt=message['video'].get('caption', "Extract text from video")
@@ -205,13 +203,14 @@ def process_whatsapp_message(body):
             response =extracted_text 
         else:
             response = "Sorry, I couldn't process your video."
-        data = get_text_message_input(wa_id, response)
-    else:
+        else:
         response = f"Unsupported message type received: {message}\n Can only support text,image,video..not docs.."
         logging.warning(f"Unsupported message type received: {message}")
     with shelve.open("threads_db1", writeback=True) as threads_shelf:
         threads_shelf[wa_id] = history
     response+=str(history)
+    data = get_text_message_input(wa_id, response)
+
     send_message(data)
 
 def is_valid_whatsapp_message(body):

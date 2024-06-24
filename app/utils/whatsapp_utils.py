@@ -169,7 +169,8 @@ def process_whatsapp_message(body):
     # print(message)
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
-
+    time.sleep(40)
+    print("40 sec wait")
     if "text" in message:
         message_body = message["text"]["body"]
         if(message_body.lower()=="cleanup"):

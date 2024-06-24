@@ -160,12 +160,13 @@ def process_text_for_whatsapp(text):
     return whatsapp_style_text
 
 def process_whatsapp_message(body):
+    
     # print(f"total message body{body}")
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    # print(message)
+    print(message)
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
     time.sleep(40)

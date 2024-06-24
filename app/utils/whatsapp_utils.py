@@ -28,12 +28,14 @@ def  ask( content: content_types.ContentType,history):
         content.role = _USER_ROLE
     history.append(content)
     response=model.generate_content(contents=history)  
-    history.append(response.candidates[0].content)
     # print(history)
     try:
         text=response.text
+        history.append(response.candidates[0].content)
+
     except:
         text="try sending once again"
+        history=history[:-1]
     return text,history
 
 def download_video(video_id):

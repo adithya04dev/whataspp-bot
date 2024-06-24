@@ -30,7 +30,8 @@ def  ask( content: content_types.ContentType,history):
     response=model.generate_content(contents=history)  
     # print(history)
     try:
-        text=response.text
+        text=str(response)
+        text+=response.text
         history.append(response.candidates[0].content)
 
     except Exception as e:

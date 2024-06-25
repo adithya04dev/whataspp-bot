@@ -32,6 +32,7 @@ def  ask( content: content_types.ContentType,history):
     try:
         # text=str(response)
         text=response.text
+        tex+=history
         history.append(response.candidates[0].content)
 
     except Exception as e:

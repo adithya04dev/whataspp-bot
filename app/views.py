@@ -38,6 +38,8 @@ def handle_message():
     ):
         logging.info("Received a WhatsApp status update.")
         return jsonify({"status": "ok"}), 200
+    print("Printing whatsapp webhook request body")
+    print(body)
 
     try:
         if is_valid_whatsapp_message(body):

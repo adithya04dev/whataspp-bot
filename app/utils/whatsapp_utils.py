@@ -99,7 +99,7 @@ def download_image(image_id):
             }, stream=True)
 
             if image_response.status_code == 200:
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg',name=str(image_id)) as tmp_file:
                     for chunk in image_response.iter_content(chunk_size=8192):
                         tmp_file.write(chunk)
                     return tmp_file.name

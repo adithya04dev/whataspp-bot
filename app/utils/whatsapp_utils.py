@@ -185,7 +185,7 @@ def process_whatsapp_message(body):
         else:           
             response,history = ask([message_body],history)
     elif "image" in message:
-        prompt = message['image'].get('caption', " ")
+        prompt = message['image'].get('caption', "Here's image")
 
         
         # print(message)

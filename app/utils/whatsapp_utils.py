@@ -22,7 +22,7 @@ import random
 
 def  ask( content: content_types.ContentType,history):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
     content = content_types.to_content(content)
     if not content.role:
         content.role = _USER_ROLE

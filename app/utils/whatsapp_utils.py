@@ -114,6 +114,7 @@ def download_image(image_id):
 def process_image(image_path,prompt,history):
     
     image_file = genai.upload_file(path=image_path)
+    os.remove(image_path)
     return ask([image_file, prompt],history)
 
 def log_http_response(response):

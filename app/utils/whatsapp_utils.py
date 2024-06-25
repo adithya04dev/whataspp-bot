@@ -31,7 +31,7 @@ def  ask( content: content_types.ContentType,history):
     # print(history)
     try:
         text=response.text
-        text+=str(history)
+        # text+=str(history)
 
         history.append(response.candidates[0].content)
 

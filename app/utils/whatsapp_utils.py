@@ -201,7 +201,7 @@ def process_whatsapp_message(body):
             response= "Sorry, I couldn't process your image."
     elif "video" in message:
         video_id = message["video"]["id"]
-        prompt=message['video'].get('caption', "Extract text from video")
+        prompt=message['video'].get('caption', "here's the video")
         # print(prompt)
         video_path = download_video(video_id)
         if video_path:

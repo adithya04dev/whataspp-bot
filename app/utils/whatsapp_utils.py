@@ -18,7 +18,7 @@ import time
 from google.generativeai.types import content_types
 _USER_ROLE = "user"
 _MODEL_ROLE = "model"
-
+import random
 
 def  ask( content: content_types.ContentType,history):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
@@ -90,6 +90,7 @@ def download_image(image_id):
     headers = {
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
+    random_number = str(random.randint(1, 1000000000))
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         image_url = response.json().get('url')
@@ -99,7 +100,7 @@ def download_image(image_id):
             }, stream=True)
 
             if image_response.status_code == 200:
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg',name=str(image_id)) as tmp_file:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg',prefix=random_number) as tmp_file:
                     for chunk in image_response.iter_content(chunk_size=8192):
                         tmp_file.write(chunk)
                     return tmp_file.name

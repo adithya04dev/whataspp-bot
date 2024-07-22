@@ -8,3 +8,4 @@ Pillow
 langchain 
 langchain_google_genai 
 google 
+langchain-openai

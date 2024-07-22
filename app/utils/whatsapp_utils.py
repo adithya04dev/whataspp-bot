@@ -219,9 +219,9 @@ def process_whatsapp_message(body):
                     },
                 ],
             )
-            response = llm.invoke([message])
-            print(response.content)
-
+            response1 = llm.invoke([message])
+            print(response1.content)
+            response=response1.content
             # extracted_text,history = process_image(image_path,prompt,history)
             # response =extracted_text 
     

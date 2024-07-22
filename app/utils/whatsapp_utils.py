@@ -33,13 +33,13 @@ def  ask( content: content_types.ContentType,history):
     if not content.role:
         content.role = _USER_ROLE
     history.append(content)
-    response=model.generate_content(contents=history)  
+    response=model.generate_content(contents=content)  
     # print(history)
     try:
         text=response.text
         # text+=str(history)
 
-        history.append(response.candidates[0].content)
+        # history.append(response.candidates[0].content)
 
     except Exception as e:
         # text="try sending once again"
@@ -121,8 +121,11 @@ def download_image(image_id):
 def process_image(image_path,prompt,history):
     
     image_file = genai.upload_file(path=image_path)
+    
+    res,his= ask([image_file, prompt],history)
     os.remove(image_path)
-    return ask([image_file, prompt],history)
+    genai.delete_file(image_file.name)
+    return res,his
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -190,6 +193,13 @@ def process_whatsapp_message(body):
     if "text" in message:
         message_body = message["text"]["body"]
         text=message_body
+        message = HumanMessage(
+        content=[
+            {"type": "text", "text": text}
+        ],  )
+      response1 = llm.invoke([message])
+      print(response1.content)
+      response=response1.content
         # if(message_body.lower()=="cleanup"):
         #     history=[]
         #     response="done"
@@ -209,21 +219,24 @@ def process_whatsapp_message(body):
         image_id = message["image"]["id"]
         image_path = download_image(image_id)
         if image_path:
-            image_data=encode_image(image_path)
+            # image_data=encode_image(image_path)
             message = HumanMessage(
                 content=[
-                    {"type": "text", "text": text},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{image_data}"},
-                    },
+                    {"type": "text", "text": text}
                 ],
             )
+            # response1 = llm.invoke([message])
+            # print(response1.content)
+            # response=response1.content
+            extracted_text,history = process_image(image_path,"Extraxt text,content,questions,options ..from image",history)
+            message = HumanMessage(
+                  content=[
+                      {"type": "text", "text": extracted_text}
+                  ],
+              )
             response1 = llm.invoke([message])
             print(response1.content)
             response=response1.content
-            # extracted_text,history = process_image(image_path,prompt,history)
-            # response =extracted_text 
     
         else:
             response= "Sorry, I couldn't process your image."

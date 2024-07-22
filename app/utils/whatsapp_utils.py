@@ -186,6 +186,7 @@ def process_whatsapp_message(body):
         history=threads_shelf.get(wa_id, [])
     text="Answer this question. Lets think step by step."
     llm = ChatOpenAI(model="gpt-4o-mini")
+    response='
     if "text" in message:
         message_body = message["text"]["body"]
         text=message_body

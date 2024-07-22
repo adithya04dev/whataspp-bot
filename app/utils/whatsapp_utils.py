@@ -184,9 +184,9 @@ def process_whatsapp_message(body):
     
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
-    text="Answer this question. Lets think step by step."
+    text="Extract the question and options from image and answer it. Think step by step."
     llm = ChatOpenAI(model="gpt-4o-mini")
-    response='
+    response=''
     if "text" in message:
         message_body = message["text"]["body"]
         text=message_body

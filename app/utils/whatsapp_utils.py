@@ -3,6 +3,10 @@ import logging
 from flask import current_app, jsonify
 import json
 import requests
+from langchain_core.messages import HumanMessage
+import base64
+from langchain_openai import ChatOpenAI
+import os
 import re
 from io import BytesIO
 from PIL import Image
@@ -19,7 +23,9 @@ from google.generativeai.types import content_types
 _USER_ROLE = "user"
 _MODEL_ROLE = "model"
 import random
-
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
 def  ask( content: content_types.ContentType,history):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
@@ -178,15 +184,21 @@ def process_whatsapp_message(body):
     
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
+    text="Answer this question. Lets think step by step."
+    llm = ChatOpenAI(model="gpt-4o-mini")
     if "text" in message:
         message_body = message["text"]["body"]
-        if(message_body.lower()=="cleanup"):
-            history=[]
-            response="done"
-        elif message_body.lower()=="history":
-            response=str(history)
-        else:           
-            response,history = ask([message_body],history)
+        text=message_body
+        # if(message_body.lower()=="cleanup"):
+        #     history=[]
+        #     response="done"
+        # elif message_body.lower()=="history":
+        #     response=str(history)
+        # else:           
+        #     response,history = ask([message_body],history)
+
+
+
     elif "image" in message:
         prompt = message['image'].get('caption', "Here's image")
 
@@ -196,12 +208,26 @@ def process_whatsapp_message(body):
         image_id = message["image"]["id"]
         image_path = download_image(image_id)
         if image_path:
+            image_data=encode_image(image_path)
+            message = HumanMessage(
+                content=[
+                    {"type": "text", "text": text},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_data}"},
+                    },
+                ],
+            )
+            response = llm.invoke([message])
+            print(response.content)
 
-            extracted_text,history = process_image(image_path,prompt,history)
-            response =extracted_text 
+            # extracted_text,history = process_image(image_path,prompt,history)
+            # response =extracted_text 
     
         else:
             response= "Sorry, I couldn't process your image."
+
+
     elif "video" in message:
         video_id = message["video"]["id"]
         prompt=message['video'].get('caption', "here's the video")

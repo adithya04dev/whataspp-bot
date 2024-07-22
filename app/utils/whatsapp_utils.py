@@ -193,13 +193,10 @@ def process_whatsapp_message(body):
     if "text" in message:
         message_body = message["text"]["body"]
         text=message_body
-        message = HumanMessage(
-        content=[
-            {"type": "text", "text": text}
-        ],  )
-      response1 = llm.invoke([message])
-      print(response1.content)
-      response=response1.content
+        message = HumanMessage(content=[{"type": "text", "text": text}], )
+        response1 = llm.invoke([message])
+        print(response1.content)
+        response=response1.content
         # if(message_body.lower()=="cleanup"):
         #     history=[]
         #     response="done"

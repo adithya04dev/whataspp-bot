@@ -33,8 +33,29 @@ def  ask( content: content_types.ContentType,history):
     if not content.role:
         content.role = _USER_ROLE
     history.append(content)
-    response=model.generate_content(contents=content)  
-    # print(history)
+    safe = [
+        {
+            "category": "HARM_CATEGORY_DANGEROUS",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_HARASSMENT",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_HATE_SPEECH",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+            "threshold": "BLOCK_NONE",
+        },]
+    response=model.generate_content(contents=content,safety_settings=safe)
+                                    # print(history)
     try:
         text=response.text
         # text+=str(history)

@@ -196,7 +196,7 @@ def process_text_for_whatsapp(text):
     replacement = r"*\1*"
     whatsapp_style_text = re.sub(pattern, replacement, text)
     return whatsapp_style_text
-
+text="Extract the question and options from image and answer it. Think step by step."
 def process_whatsapp_message(body):
     
     # print(f"total message body{body}")
@@ -205,10 +205,10 @@ def process_whatsapp_message(body):
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     print(message)
-    
+    global text
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
-    text="Extract the question and options from image and answer it. Think step by step."
+    
     llm = ChatOpenAI(model="gpt-4o-mini")
     response=''
     if "text" in message:
@@ -249,7 +249,7 @@ def process_whatsapp_message(body):
             extracted_text,history = process_image(image_path,"Extraxt text,content,questions,options ..from image",history)
             message = HumanMessage(
                   content=[
-                      {"type": "text", "text": extracted_text}
+                      {"type": "text", "text": text+ extracted_text}
                   ],
               )
             response1 = llm.invoke([message])

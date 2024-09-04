@@ -231,7 +231,7 @@ def process_whatsapp_message(body):
     if "text" in message:
         
         message_body = message["text"]["body"]
-        if text.startswith("context"):
+        if text.lower().startswith("context"):
             text+=message_body
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content

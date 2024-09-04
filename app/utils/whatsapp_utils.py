@@ -213,10 +213,9 @@ def process_whatsapp_message(body):
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
     
-    llm = ChatOpenAI(model="gpt-4o-mini")
-    # llm=ChatGroq(model="llama-3.1-70b-versatile")
-    # verifier=ChatGroq(model="llama-3.1-70b-versatile")
-    verifier=ChatOpenAI(model='gpt-4o-mini')
+    # llm = ChatOpenAI(model="gpt-4o-mini")
+    llm=ChatGroq(model="llama-3.1-70b-versatile")
+    verifier=ChatGroq(model="llama-3.1-70b-versatile")
     response=''
     verifier_prompt=""" I had given a task to my assistant: 
     {text}.
@@ -228,6 +227,7 @@ def process_whatsapp_message(body):
     return Final answer.
         """
     if "text" in message:
+        
         message_body = message["text"]["body"]
         if text.startswith("context"):
             text+=message_body
@@ -247,7 +247,7 @@ def process_whatsapp_message(body):
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
             print("one shot text answering mode")
             response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
-
+        response+= f'\ntext given was: \n{text}'
         # print(response)
         # if(message_body.lower()=="cleanup"):
         #     history=[]

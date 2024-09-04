@@ -232,7 +232,7 @@ def process_whatsapp_message(body):
             text+=message_body
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
-            response=f" initial assistant response: {initial_response} \n\n verifier assistant response: {verifier_response}"
+            response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
             text='  '
 
         elif message_body.startswith("more"):
@@ -242,7 +242,7 @@ def process_whatsapp_message(body):
             text=message_body
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
-            response=f" initial assistant response: {initial_response} \n\n verifier assistant response: {verifier_response}"
+            response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
 
         # print(response)
         # if(message_body.lower()=="cleanup"):
@@ -277,8 +277,9 @@ def process_whatsapp_message(body):
             else:
 
                 initial_response = llm.invoke(f"{text} \n {extracted_text}").content
-                verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
-                response=f" initial assistant response: {initial_response} \n\n verifier assistant response: {verifier_response}"
+                image_text=f"{text} \n {extracted_text}"
+                verifier_response=verifier.invoke(verifier_prompt.format(text=image_text,response=initial_response)).content
+                response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
                 # print(response)
     
         else:

@@ -233,15 +233,18 @@ def process_whatsapp_message(body):
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
             response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
+            print("context answering mode")
             text='  '
 
         elif message_body.startswith("more"):
             text+=message_body
+            print("adding more context using text mode")
             response="text context was added to the prompt."
         else:
             text=message_body
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
+            print("one shot text answering mode")
             response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
 
         # print(response)
@@ -273,6 +276,7 @@ def process_whatsapp_message(body):
             if text.startswith("context"):
                 text+=extracted_text
                 response=f"Context was added to the prompt. "
+                print("context adding using image mode")
 
             else:
 
@@ -280,6 +284,7 @@ def process_whatsapp_message(body):
                 image_text=f"{text} \n {extracted_text}"
                 verifier_response=verifier.invoke(verifier_prompt.format(text=image_text,response=initial_response)).content
                 response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
+                print("one shot image answering mode")
                 # print(response)
     
         else:

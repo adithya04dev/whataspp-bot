@@ -210,10 +210,10 @@ def process_whatsapp_message(body):
         text=threads_shelf.get(wa_id, ' ')
     
     
-    llm=ChatGroq(model="llama-3.1-70b-versatile")
-    verifier=ChatGroq(model="llama-3.1-70b-versatile")
-    # llm=ChatOpenAI(model="gpt-4o-mini")
-    # verifier=ChatOpenAI(model="gpt-4o-mini")
+    # llm=ChatGroq(model="llama-3.1-70b-versatile")
+    # verifier=ChatGroq(model="llama-3.1-70b-versatile")
+    llm=ChatOpenAI(model="gpt-4o-mini")
+    verifier=ChatOpenAI(model="gpt-4o-mini")
     response=''
     verifier_response=None
     verifier_prompt=""" I had given a task to my assistant: 
@@ -247,7 +247,7 @@ def process_whatsapp_message(body):
             initial_response = llm.invoke(text).content
             # verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
             print("one shot text answering mode")
-            response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
+            response=f" initial assistant response: \n {initial_response} "
         response+= f'\ntext given was: \n{text}'
         # print(response)
         # if(message_body.lower()=="cleanup"):

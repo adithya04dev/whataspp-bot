@@ -198,20 +198,17 @@ def process_text_for_whatsapp(text):
     replacement = r"*\1*"
     whatsapp_style_text = re.sub(pattern, replacement, text)
     return whatsapp_style_text
-text="Extract the question and options from image and answer it. Think step by step."
-context=0
 def process_whatsapp_message(body):
     
     # print(f"total message body{body}")
-    global context
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     print(message)
-    global text
     with shelve.open("threads_db1") as threads_shelf:
-        history=threads_shelf.get(wa_id, [])
+        text=threads_shelf.get(wa_id, ' ')
+    
     
     # llm = ChatOpenAI(model="gpt-4o-mini")
     # llm=ChatGroq(model="llama-3.1-70b-versatile")
@@ -232,7 +229,7 @@ def process_whatsapp_message(body):
         
         message_body = message["text"]["body"]
         if text.lower().startswith("context"):
-            text+=message_body
+            text+=' '+message_body
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
             response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
@@ -275,9 +272,12 @@ def process_whatsapp_message(body):
             # response1 = llm.invoke([message])
             # print(response1.content)
             # response=response1.content
+            #q.stri='contexthell' stri.startswith(stri) returns? 
+            #a. 
+
             extracted_text,history = process_image(image_path,"Extract text,content,questions,options ..from image",history)
             if text.lower().startswith("context"):
-                text+=extracted_text
+                text+=' '+ extracted_text
                 response=f"Context was added to the prompt. "
                 print("context adding using image mode")
 
@@ -308,7 +308,7 @@ def process_whatsapp_message(body):
         response = f"Unsupported message type received: {message}\n Can only support text,image,video..not docs.."
         logging.warning(f"Unsupported message type received: {message}")
     with shelve.open("threads_db1", writeback=True) as threads_shelf:
-        threads_shelf[wa_id] = history
+        threads_shelf[wa_id] = text
     # response+=str(history)
     data = get_text_message_input(wa_id, response)
 

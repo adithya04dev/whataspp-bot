@@ -246,7 +246,7 @@ def process_whatsapp_message(body):
         else:
             text=message_body
             initial_response = llm.invoke(text).content
-            verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
+            # verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
             print("one shot text answering mode")
             response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
         response+= f'\ntext given was: \n{text}'

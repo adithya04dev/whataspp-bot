@@ -28,13 +28,13 @@ import random
 def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')
-def  ask( content: content_types.ContentType,history):
+def  ask( content: content_types.ContentType):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
     content = content_types.to_content(content)
     if not content.role:
         content.role = _USER_ROLE
-    history.append(content)
+    # history.append(content)
     safe = [
         {
             "category": "HARM_CATEGORY_DANGEROUS",
@@ -68,8 +68,8 @@ def  ask( content: content_types.ContentType,history):
         # text="try sending once again"
         text=str(response)
         text+=str(e)
-        history=history[:-1]
-    return text,history
+        # history=history[:-1]
+    return text
 
 def download_video(video_id):
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{video_id}"
@@ -141,14 +141,14 @@ def download_image(image_id):
         logging.error(f"Failed to get image info: {response.text}")
     return None
 
-def process_image(image_path,prompt,history):
+def process_image(image_path,prompt):
     
     image_file = genai.upload_file(path=image_path)
     
-    res,his= ask([image_file, prompt],history)
+    res= ask([image_file, prompt])
     os.remove(image_path)
     genai.delete_file(image_file.name)
-    return res,his
+    return res
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -275,7 +275,7 @@ def process_whatsapp_message(body):
             #q.stri='contexthell' stri.startswith(stri) returns? 
             #a. 
 
-            extracted_text,history = process_image(image_path,"Extract text,content,questions,options ..from image",history)
+            extracted_text = process_image(image_path,"Extract text,content,questions,options ..from image")
             if text.lower().startswith("context"):
                 text+=' '+ extracted_text
                 response=f"Context was added to the prompt. "

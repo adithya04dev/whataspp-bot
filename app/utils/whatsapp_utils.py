@@ -6,6 +6,7 @@ import requests
 from langchain_core.messages import HumanMessage
 import base64
 from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 import os
 import re
 from io import BytesIO
@@ -14,6 +15,7 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 import google.generativeai as genai
+
 import PIL.Image
 import os
 import tempfile
@@ -197,9 +199,11 @@ def process_text_for_whatsapp(text):
     whatsapp_style_text = re.sub(pattern, replacement, text)
     return whatsapp_style_text
 text="Extract the question and options from image and answer it. Think step by step."
+context=0
 def process_whatsapp_message(body):
     
     # print(f"total message body{body}")
+    global context
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
@@ -209,15 +213,38 @@ def process_whatsapp_message(body):
     with shelve.open("threads_db1") as threads_shelf:
         history=threads_shelf.get(wa_id, [])
     
-    llm = ChatOpenAI(model="gpt-4o-mini")
+    # llm = ChatOpenAI(model="gpt-4o-mini")
+    llm=ChatGroq(model="llama-3.1-70b-versatile")
+    verifier=ChatGroq(model="llama-3.1-70b-versatile")
     response=''
+    verifier_prompt=""" I had given a task to my assistant: 
+    {text}.
+    He gave me this response:
+    {response}.
+
+    I want you to verify if the response is correct or not.
+    Let's verify step by step if the response is correct or not. 
+    return Final answer.
+        """
     if "text" in message:
         message_body = message["text"]["body"]
-        text=message_body
-        message = HumanMessage(content=[{"type": "text", "text": text}], )
-        response1 = llm.invoke([message])
-        print(response1.content)
-        response=response1.content
+        if text.startswith("context"):
+            text+=message_body
+            initial_response = llm.invoke(text).content
+            verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
+            response=f" initial assistant response: {initial_response} \n\n verifier assistant response: {verifier_response}"
+            text='  '
+
+        elif message_body.startswith("more"):
+            text+=message_body
+            response="text context was added to the prompt."
+        else:
+            text=message_body
+            initial_response = llm.invoke(text).content
+            verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
+            response=f" initial assistant response: {initial_response} \n\n verifier assistant response: {verifier_response}"
+
+        # print(response)
         # if(message_body.lower()=="cleanup"):
         #     history=[]
         #     response="done"
@@ -238,23 +265,21 @@ def process_whatsapp_message(body):
         image_path = download_image(image_id)
         if image_path:
             # image_data=encode_image(image_path)
-            message = HumanMessage(
-                content=[
-                    {"type": "text", "text": text}
-                ],
-            )
+
             # response1 = llm.invoke([message])
             # print(response1.content)
             # response=response1.content
-            extracted_text,history = process_image(image_path,"Extraxt text,content,questions,options ..from image",history)
-            message = HumanMessage(
-                  content=[
-                      {"type": "text", "text": text+ extracted_text}
-                  ],
-              )
-            response1 = llm.invoke([message])
-            print(response1.content)
-            response=response1.content
+            extracted_text,history = process_image(image_path,"Extract text,content,questions,options ..from image",history)
+            if text.startswith("context"):
+                text+=extracted_text
+                response=f"Context was added to the prompt. "
+
+            else:
+
+                initial_response = llm.invoke(f"{text} \n {extracted_text}").content
+                verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
+                response=f" initial assistant response: {initial_response} \n\n verifier assistant response: {verifier_response}"
+                # print(response)
     
         else:
             response= "Sorry, I couldn't process your image."

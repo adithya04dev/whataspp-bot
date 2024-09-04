@@ -232,7 +232,7 @@ def process_whatsapp_message(body):
             text+=' '+message_body
             initial_response = llm.invoke(text).content
             verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
-            response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
+            response=f" initial assistant response: \n {initial_response} "
             print("context answering mode")
             text='  '
 
@@ -240,6 +240,8 @@ def process_whatsapp_message(body):
             text+=message_body
             print("adding more context using text mode")
             response="text context was added to the prompt."
+            verifier_response=None
+            
         else:
             text=message_body
             initial_response = llm.invoke(text).content
@@ -279,6 +281,7 @@ def process_whatsapp_message(body):
             if text.lower().startswith("context"):
                 text+=' '+ extracted_text
                 response=f"Context was added to the prompt. "
+                verfier_response=None
                 print("context adding using image mode")
 
             else:
@@ -292,6 +295,7 @@ def process_whatsapp_message(body):
     
         else:
             response= "Sorry, I couldn't process your image."
+            verifier_response=None
 
 
     elif "video" in message:
@@ -311,8 +315,11 @@ def process_whatsapp_message(body):
         threads_shelf[wa_id] = text
     # response+=str(history)
     data = get_text_message_input(wa_id, response)
-
     send_message(data)
+
+    if verifier_response!=None:
+        data = get_text_message_input(wa_id, f"Verifier assistant response: \n {verifier_response}")
+        send_message(data)
 
 def is_valid_whatsapp_message(body):
     try:

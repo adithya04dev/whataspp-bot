@@ -216,6 +216,7 @@ def process_whatsapp_message(body):
     llm=ChatOpenAI(model="gpt-4o-mini")
     verifier=ChatOpenAI(model="gpt-4o-mini")
     response=''
+    verifier_response=None
     verifier_prompt=""" I had given a task to my assistant: 
     {text}.
     He gave me this response:
@@ -281,7 +282,6 @@ def process_whatsapp_message(body):
             if text.lower().startswith("context"):
                 text+=' '+ extracted_text
                 response=f"Context was added to the prompt. "
-                verfier_response=None
                 print("context adding using image mode")
 
             else:

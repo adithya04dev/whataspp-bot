@@ -214,8 +214,10 @@ def process_whatsapp_message(body):
         history=threads_shelf.get(wa_id, [])
     
     # llm = ChatOpenAI(model="gpt-4o-mini")
-    llm=ChatGroq(model="llama-3.1-70b-versatile")
-    verifier=ChatGroq(model="llama-3.1-70b-versatile")
+    # llm=ChatGroq(model="llama-3.1-70b-versatile")
+    # verifier=ChatGroq(model="llama-3.1-70b-versatile")
+    llm=ChatOpenAI(model="gpt-4o-mini")
+    verifier=ChatOpenAI(model="gpt-4o-mini")
     response=''
     verifier_prompt=""" I had given a task to my assistant: 
     {text}.

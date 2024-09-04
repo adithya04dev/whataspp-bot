@@ -276,7 +276,7 @@ def process_whatsapp_message(body):
             # print(response1.content)
             # response=response1.content
             extracted_text,history = process_image(image_path,"Extract text,content,questions,options ..from image",history)
-            if text.startswith("context"):
+            if text.lower().startswith("context"):
                 text+=extracted_text
                 response=f"Context was added to the prompt. "
                 print("context adding using image mode")

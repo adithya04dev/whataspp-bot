@@ -202,7 +202,7 @@ def process_text_for_whatsapp(text):
     return whatsapp_style_text
 sent_text=[]
 def process_whatsapp_message(body):
-    
+    global sent_text 
     # print(f"total message body{body}")
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]

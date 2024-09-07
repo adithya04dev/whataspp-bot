@@ -311,7 +311,7 @@ def process_whatsapp_message(body):
 
                 initial_response = llm.invoke(f"{text} \n {extracted_text}").content
                 image_text=f"{text} \n {extracted_text}"
-                verifier_response=verifier.invoke(verifier_prompt.format(text=image_text,response=initial_response)).content
+                # verifier_response=verifier.invoke(verifier_prompt.format(text=image_text,response=initial_response)).content
                 response=f" initial assistant response: \n {initial_response} \n\n verifier assistant response: \n {verifier_response}"
                 print("one shot image answering mode")
                 # print(response)

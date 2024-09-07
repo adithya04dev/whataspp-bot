@@ -200,6 +200,7 @@ def process_text_for_whatsapp(text):
     replacement = r"*\1*"
     whatsapp_style_text = re.sub(pattern, replacement, text)
     return whatsapp_style_text
+sent_text=[]
 def process_whatsapp_message(body):
     
     # print(f"total message body{body}")
@@ -207,6 +208,11 @@ def process_whatsapp_message(body):
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+    unique_id=message['id']
+    if unique_id in sent_text:
+      return 
+
+  
     message_timestamp = int(message["timestamp"])
   
   # Convert the message timestamp to a datetime object
@@ -249,7 +255,7 @@ def process_whatsapp_message(body):
         if text.lower().startswith("context"):
             text+=' '+message_body
             initial_response = llm.invoke(text).content
-            verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
+            # verifier_response=verifier.invoke(verifier_prompt.format(text=text,response=initial_response)).content
             response=f" initial assistant response: \n {initial_response} "
             print("context answering mode")
             text='  '
@@ -333,7 +339,7 @@ def process_whatsapp_message(body):
     # response+=str(history)
     data = get_text_message_input(wa_id, response)
     send_message(data)
-
+    sent_text.append(unique_id)
     if verifier_response!=None:
         data = get_text_message_input(wa_id, f"Verifier assistant response: \n {verifier_response}")
         send_message(data)

@@ -22,6 +22,8 @@ import tempfile
 import shelve
 import time
 from google.generativeai.types import content_types
+from datetime import datetime
+
 _USER_ROLE = "user"
 _MODEL_ROLE = "model"
 import random
@@ -205,6 +207,22 @@ def process_whatsapp_message(body):
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     # print(body["entry"][0]["changes"][0]["value"]["messages"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+    message_timestamp = int(message["timestamp"])
+  
+  # Convert the message timestamp to a datetime object
+    message_time = datetime.fromtimestamp(message_timestamp)
+  
+  # Get the current time
+    current_time = datetime.now()
+  
+  # Calculate the time difference
+    time_difference = current_time - message_time
+    print("current time : ",current_time)
+    print("message time : ",message_time)
+  # If the message is older than 3 minutes (180 seconds), return early
+    if time_difference.total_seconds() > 180:
+        print("Message is older than 3 minutes, skipping.")
+        return
     print(message)
     with shelve.open("threads_db1") as threads_shelf:
         text=threads_shelf.get(wa_id, ' ')

@@ -32,7 +32,7 @@ def encode_image(image_path):
     return base64.b64encode(image_file.read()).decode('utf-8')
 def  ask( content: content_types.ContentType):
     genai.configure(api_key=current_app.config['GOOGLE_API_KEY'])
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+    model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
     content = content_types.to_content(content)
     if not content.role:
         content.role = _USER_ROLE

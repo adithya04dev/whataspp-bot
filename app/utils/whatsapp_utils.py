@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage
 import base64
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
+from langchain_together import ChatTogether
 import os
 import re
 from io import BytesIO
@@ -236,7 +237,8 @@ def process_whatsapp_message(body):
     
     # llm=ChatGroq(model="llama-3.1-70b-versatile")
     # verifier=ChatGroq(model="llama-3.1-70b-versatile")
-    llm=ChatOpenAI(model="gpt-4o-mini")
+    # llm=ChatOpenAI(model="gpt-4o-mini")
+    llm=ChatTogether(model='Qwen/Qwen2.5-72B-Instruct-Turbo')
     verifier=ChatOpenAI(model="gpt-4o-mini")
     response=''
     verifier_response=None

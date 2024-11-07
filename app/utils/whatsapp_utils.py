@@ -185,7 +185,7 @@ def process_whatsapp_message(body):
         
         message_body = message["text"]["body"]
         if text.lower().startswith("context"):
-            send_message(f"text extracted from given images is \n {text}")
+            # send_message(f"text extracted from given images is \n {text}")
             text+=' '+message_body
             initial_response = llm.invoke(text).content
             response=f" initial assistant response: \n {initial_response} "
@@ -227,10 +227,10 @@ def process_whatsapp_message(body):
                 print("context adding using image mode")
 
             else:
-                send_message(f"text extracted from given single image is \n {extracted_text}")
+                # send_message(f"text extracted from given single image is \n {extracted_text}")
     
                 # initial_response = llm.invoke(f"{text} \n {extracted_text}").content
-                image_text=f"{text} \n {extracted_text}"
+                # image_text=f"{text} \n {extracted_text}"
                 response=extracted_text
                 print("one shot image answering mode")
     

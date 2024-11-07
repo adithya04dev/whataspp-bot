@@ -249,6 +249,7 @@ def process_whatsapp_message(body):
         threads_shelf[wa_id] = text
     # response+=str(history)
     data = get_text_message_input(wa_id, response)
+    print(response)
     send_message(data)
     sent_text.append(unique_id)
     if verifier_response!=None:
